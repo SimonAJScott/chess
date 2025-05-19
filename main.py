@@ -1,6 +1,7 @@
 import pygame
 import sys
 from Board import Board
+import random
 
 
 currentBoard = Board.getBoard(Board)
@@ -73,22 +74,27 @@ def printBoard():
                     screen.blit(bKing, Board.arrayToPixel(Board, i, j, 25))
 
 
+def printGreyCircles(greyCircleLocations):
+    for greyCircleLocation in greyCircleLocations:
+        screen.blit(
+            greycircle, (Board.arrayToPixel(Board, greyCircleLocation[0], greyCircleLocation[1], 10)))
+
+
 pygame.display.set_icon(icon)
 pygame.display.set_caption("simon's chess game!")
+
+# Setup
+Board.setup(Board)
+Board.printBoard(Board)
+
 # Main loop
 running = True
-setup = True
-while running:
-    # Fill the screen with white
-    screen.fill((255, 255, 255))
 
+greyCircleLocations = set()
+lastPieceClickedLocation = ()
+while running:
     # Draw the image at (0, 0)
     screen.blit(board, (0, 0))
-
-    if setup:
-        Board.setup(Board)
-        Board.printBoard(Board)
-        setup = False
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
             # This gives the (x, y) position of the click
@@ -100,13 +106,22 @@ while running:
             if (mouse_pos[0] <= min or mouse_pos[0] >= max or mouse_pos[1] <= min or mouse_pos[1] >= max):
                 print("out of bounds")
             else:
-                print(f"Mouse clicked at: {mouse_pos}")
+                # print(f"Mouse clicked at: {mouse_pos}")
                 locationInArray = Board.pixelToArray(Board, mouse_pos)
+
                 print(f"in the array at: {locationInArray}")
                 print(
                     f"calculated pixel location: {Board.arrayToPixel(Board, locationInArray[0], locationInArray[1], 0)}")
-        if event.type == pygame.QUIT:
-            running = False
+
+                if locationInArray in greyCircleLocations:
+                    Board.movePiece(
+                        Board, lastPieceClickedLocation, locationInArray)
+
+                if Board.getBoard(Board)[locationInArray[0]][locationInArray[1]] != 0:
+                    greyCircleLocations = Board.getPossibleLocations(
+                        Board, locationInArray)
+                    lastPieceClickedLocation = locationInArray
+    printGreyCircles(greyCircleLocations)
     printBoard()
     # # subtract 10 from each (icon is 20x20) parameter in arraytopixel
     # for i in range(0, 8):
@@ -115,6 +130,8 @@ while running:
 
     # Update the display
     pygame.display.flip()
+    if event.type == pygame.QUIT:
+        running = False
 
 # Quit Pygame
 pygame.quit()

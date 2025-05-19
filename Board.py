@@ -10,7 +10,7 @@ class Board:
         # col = (mouse_pos[1]-30)//78.75
         row = (mouse_pos[0]-150)//62.5
         col = (mouse_pos[1]-150)//62.5
-        return (row, col)
+        return (int(row), int(col))
 
     def arrayToPixel(self, row, col, offset):
         # row + size of each square + margin + in the center of square + in center of the image (20*20)
@@ -47,3 +47,28 @@ class Board:
 
     def getBoard(self):
         return self.board
+
+    def getPossibleLocations(self, location):
+        possibleLocations = set()
+        row = location[0]
+        col = location[1]
+        match self.board[row][col]:
+            case 1:
+                possibleLocations.add((row, col-1))
+            case -1:
+                possibleLocations.add((row, col+1))
+            case 2:
+                for i in range(row, 8):
+                    possibleLocations.add((i, col))
+                for i in range(0, row):
+                    possibleLocations.add((i, col))
+                for i in range(0, col):
+                    possibleLocations.add((row, i))
+                for i in range(col, 8):
+                    possibleLocations.add((row, i))
+        return possibleLocations
+
+    def movePiece(self, location, newLocation):
+        pieceNum = self.board[location[0]][location[1]]
+        self.board[location[0]][location[1]] = 0
+        self.board[newLocation[0]][newLocation[1]] = pieceNum
