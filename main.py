@@ -1,7 +1,6 @@
 import pygame
 import sys
 from Board import Board
-import random
 
 
 currentBoard = Board.getBoard(Board)
@@ -86,12 +85,11 @@ pygame.display.set_caption("simon's chess game!")
 # Setup
 Board.setup(Board)
 Board.printBoard(Board)
-
-# Main loop
-running = True
-
+turnSwitch = True
 greyCircleLocations = set()
 lastPieceClickedLocation = ()
+# Main loop
+running = True
 while running:
     # Draw the image at (0, 0)
     screen.blit(board, (0, 0))
@@ -107,26 +105,28 @@ while running:
                 print("out of bounds")
             else:
                 # print(f"Mouse clicked at: {mouse_pos}")
-                locationInArray = Board.pixelToArray(Board, mouse_pos)
+                clickedLocation = Board.pixelToArray(Board, mouse_pos)
 
-                print(f"in the array at: {locationInArray}")
+                print(f"in the array at: {clickedLocation}")
                 print(
-                    f"calculated pixel location: {Board.arrayToPixel(Board, locationInArray[0], locationInArray[1], 0)}")
+                    f"calculated pixel location: {Board.arrayToPixel(Board, clickedLocation[0], clickedLocation[1], 0)}")
 
-                if locationInArray in greyCircleLocations:
-                    Board.movePiece(
-                        Board, lastPieceClickedLocation, locationInArray)
-
-                if Board.getBoard(Board)[locationInArray[0]][locationInArray[1]] != 0:
+                # if touching a piece, generate all grey circle locations, set the last piece touched to the one you touched
+                pieceAtLocationClicked = Board.getBoard(
+                    Board)[clickedLocation[0]][clickedLocation[1]]
+                if ((pieceAtLocationClicked > 0 and turnSwitch) or (pieceAtLocationClicked < 0 and not turnSwitch)):
                     greyCircleLocations = Board.getPossibleLocations(
-                        Board, locationInArray)
-                    lastPieceClickedLocation = locationInArray
+                        Board, clickedLocation)
+                    lastPieceClickedLocation = clickedLocation
+                # if touching a grey circle, move the previously touched piece to this this location and reset grey circles
+                elif clickedLocation in greyCircleLocations:
+                    Board.movePiece(
+                        Board, lastPieceClickedLocation, clickedLocation)
+                    greyCircleLocations = set()
+                    turnSwitch = not turnSwitch
+
     printGreyCircles(greyCircleLocations)
     printBoard()
-    # # subtract 10 from each (icon is 20x20) parameter in arraytopixel
-    # for i in range(0, 8):
-    #     for j in range(0, 8):
-    #         screen.blit(greycircle, (Board.arrayToPixel(Board, i, j, 10)))
 
     # Update the display
     pygame.display.flip()

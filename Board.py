@@ -57,7 +57,7 @@ class Board:
                 possibleLocations.add((row, col-1))
             case -1:
                 possibleLocations.add((row, col+1))
-            case 2:
+            case 2 | -2:
                 for i in range(row, 8):
                     possibleLocations.add((i, col))
                 for i in range(0, row):
