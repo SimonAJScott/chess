@@ -42,6 +42,11 @@ bPawn = pygame.transform.scale(bPawn, (40, 40))
 greycircle = pygame.image.load("assets/greycircle.png")
 greycircle = pygame.transform.scale(greycircle, (20, 20))
 
+whiteTurn = pygame.image.load("assets/whiteturn.jpg")
+whiteTurn = pygame.transform.scale(whiteTurn, (400, 95))
+blackTurn = pygame.image.load("assets/blackturn.jpg")
+blackTurn = pygame.transform.scale(blackTurn, (400, 95))
+
 
 def printBoard():
     for i in range(0, 8):
@@ -79,6 +84,15 @@ def printGreyCircles(greyCircleLocations):
             greycircle, (Board.arrayToPixel(Board, greyCircleLocation[0], greyCircleLocation[1], 10)))
 
 
+def printTurnTitle(turnSwitch):
+    if turnSwitch:
+        screen.blit(
+            whiteTurn, (200, 0))
+    else:
+        screen.blit(
+            blackTurn, (200, 0))
+
+
 pygame.display.set_icon(icon)
 pygame.display.set_caption("simon's chess game!")
 
@@ -88,6 +102,8 @@ Board.printBoard(Board)
 turnSwitch = True
 greyCircleLocations = set()
 lastPieceClickedLocation = ()
+screen.blit(
+    whiteTurn, (200, 0))
 # Main loop
 running = True
 while running:
@@ -95,8 +111,10 @@ while running:
     screen.blit(board, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONDOWN:
+
             # This gives the (x, y) position of the click
             mouse_pos = event.pos
+            print(f"Mouse clicked at: {mouse_pos}")
             # min = 30
             # max = 660
             min = 150
@@ -124,9 +142,9 @@ while running:
                         Board, lastPieceClickedLocation, clickedLocation)
                     greyCircleLocations = set()
                     turnSwitch = not turnSwitch
-
-    printGreyCircles(greyCircleLocations)
+                    printTurnTitle(turnSwitch)
     printBoard()
+    printGreyCircles(greyCircleLocations)
 
     # Update the display
     pygame.display.flip()
